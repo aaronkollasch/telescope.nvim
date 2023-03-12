@@ -320,6 +320,30 @@ sorters.get_fuzzy_file = function(opts)
   }
 end
 
+sorters.fuzzy_file_with_index_bias = function(opts)
+  opts = opts or {}
+  opts.ngram_len = opts.ngram_len or 1
+
+  local fuzzy_sorter = sorters.get_fuzzy_file(opts)
+
+  return Sorter:new {
+    scoring_function = function(_, prompt, line, entry, cb_add, cb_filter)
+      local base_score = fuzzy_sorter:scoring_function(prompt, line, cb_add, cb_filter)
+
+      if base_score == FILTERED then
+        return FILTERED
+      end
+
+      if not base_score or base_score == 0 then
+        return entry.index
+      else
+        return math.min(math.pow(entry.index, 0.25), 2) * base_score
+      end
+    end,
+    highlighter = fuzzy_sorter.highlighter,
+  }
+end
+
 sorters.get_generic_fuzzy_sorter = function(opts)
   opts = opts or {}
 

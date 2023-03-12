@@ -9,6 +9,7 @@ local Path = require "plenary.path"
 local pickers = require "telescope.pickers"
 local previewers = require "telescope.previewers"
 local p_window = require "telescope.pickers.window"
+local sorters = require "telescope.sorters"
 local state = require "telescope.state"
 local utils = require "telescope.utils"
 
@@ -583,7 +584,7 @@ internal.oldfiles = function(opts)
         results = results,
         entry_maker = opts.entry_maker or make_entry.gen_from_file(opts),
       },
-      sorter = conf.file_sorter(opts),
+      sorter = sorters.fuzzy_file_with_index_bias(opts),
       previewer = conf.grep_previewer(opts),
     })
     :find()
@@ -614,7 +615,7 @@ internal.command_history = function(opts)
     .new(opts, {
       prompt_title = "Command History",
       finder = finders.new_table(results),
-      sorter = conf.generic_sorter(opts),
+      sorter = sorters.fuzzy_with_index_bias(opts),
 
       attach_mappings = function(_, map)
         actions.select_default:replace(actions.set_command_line)
