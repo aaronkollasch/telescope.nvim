@@ -277,6 +277,9 @@ previewers.file_maker = function(filepath, bufnr, opts)
     end)
   else
     if opts.callback then
+      if type(opts.preview.filetype_hook) == "function" then
+        opts.preview.filetype_hook(filepath, bufnr, opts)
+      end
       if vim.in_fast_event() then
         vim.schedule(function()
           opts.callback(bufnr)
